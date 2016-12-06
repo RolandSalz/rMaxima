@@ -467,9 +467,10 @@
   (if (null args)
       '((mlist simp))
       (let ((l args) $stringdisp) ;; Don't print out strings with quotation marks!
-	(do ((l l (cddr l)))
-	    ((null l))
-	  (rplacd l (cons " " (cdr l))))
+; Commented out so that no blanks are inserted between printed elements and at the end:
+;			(do ((l l (cddr l)))
+;	    ((null l))
+;	  (rplacd l (cons " " (cdr l))))
 	(displa (cons '(mtext) l))
 	(cadr (reverse l)))))
 
