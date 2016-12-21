@@ -1,13 +1,22 @@
 ;; copyright 2014 by Robert Dodier
 ;; I release this work under terms of the GNU GPL
-
+;; amendments for scientific-notation by Roland Salz 5/2016
+;;
+;; Scientific format:
+;; Format floats for display with exponent, one non-zero digit before decimal point.
+;; fpprintprec is honored. The global flag scientific_format_floats
+;; (false by default) enables this format. If engineering_format_floats is set at the
+;; same time, then it overrides the scientific format.
+;;
+;; Engineering format:
 ;; Format floats for display with exponent which is a multiple of 3.
 ;; fpprintprec is honored. The global flag engineering_format_floats
-;; (true by default) enables this format.
+;; (false by default) enables this format.
 ;;
-;; Example:
+;; Example for engineering-format:
 ;;
-;; load ("engineering-format.lisp");
+;; load ("scientific-engineering-format.lisp");
+;; engineering_format_floats:true$
 ;; for fpprintprec : 2 thru 6 do print (makelist (float(%pi) * 10^n, n, -10, 10));
 ;;
 ;; [310.0E-12, 3.1E-9, 31.0E-9, 310.0E-9, 3.1E-6, 31.0E-6, 310.0E-6, 3.1E-3, 
@@ -27,14 +36,16 @@
 ;; 314.159E+0, 3.14159E+3, 31.4159E+3, 314.159E+3, 3.14159E+6, 31.4159E+6, 
 ;; 314.159E+6, 3.14159E+9, 31.4159E+9] 
 
-(defmvar $engineering_format_floats t)
+(defmvar $scientific_format_floats nil)
+(defmvar $engineering_format_floats nil)
 
-(defun engineering-format (x)
+(defun scientific-engineering-format (x)
   (if (= x 0.0)
     (format nil "~e" x)
     (let*
       ((integer-log (floor (/ (log (abs x)) (log 10.0))))
-       (scale (1+ (mod integer-log 3)))
+       (scale (if $engineering_format_floats
+								(1+ (mod integer-log 3)) 1))		;; for scientific format set scale to 1
        (effective-fpprintprec (if (= $fpprintprec 0) 16 $fpprintprec))
        (digits (1- effective-fpprintprec)))
       (declare (special $fpprintprec))
@@ -42,8 +53,8 @@
 
 (let ((foo (symbol-function 'exploden)))
   (defun exploden (x)
-    (if (and (floatp x) $engineering_format_floats)
-      (let ((s (engineering-format x)) s1)
+    (if (and (floatp x) (or $scientific_format_floats $engineering_format_floats))
+      (let ((s (scientific-engineering-format x)) s1)
         (declare (special *exploden-strip-float-zeros*))
         (setq s1 (if *exploden-strip-float-zeros* (or (strip-float-zeros s) s) s))
         (funcall foo s1))
