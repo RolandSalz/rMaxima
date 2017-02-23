@@ -130,12 +130,12 @@ goto end
 if exist "%maxima_imagesdir%/binary-clisp/maxima.exe" goto doclisp_exec
 
 if "%layout_autotools%" == "true" goto clisp_autotools
-clisp %lisp_options% -q -M "%maxima_image_base%.mem" "" -- %*
+@CLISP_NAME@ %lisp_options% -q -M "%maxima_image_base%.mem" "" -- %*
 goto end
 
 :clisp_autotools
 set path=%maxima_imagesdir%/binary-clisp;%maxima_prefix%/clisp-2.49/base;%path%
-lisp.exe %lisp_options% -q -M "%maxima_image_base%.mem" "" -- %*
+@CLISP_NAME@.exe %lisp_options% -q -M "%maxima_image_base%.mem" "" -- %*
 goto end
 
 :clisp_exec
@@ -143,7 +143,7 @@ goto end
 goto end
 
 :doecl
-ecl -load %maxima_image_base%.fas %lisp_options% -eval "(user::run)" -- %*
+@ECL_NAME@ -load %maxima_image_base%.fas %lisp_options% -eval "(user::run)" -- %*
 goto end
 
 rem SBCL Steel Bank Common Lisp
@@ -155,7 +155,7 @@ if "%MAXIMA_SIGNALS_THREAD%" == "" (
 ) else ( 
   set start_maxima="(progn (load (maxima::$sconcat (namestring (pathname (maxima::maxima-getenv \"MAXIMA_PREFIX\"))) \"/bin/win_signals.lisp\")) (cl-user::run))"
 )
-sbcl.exe --core "%maxima_imagesdir%/binary-sbcl/maxima.core" --noinform %lisp_options% --end-runtime-options --eval %start_maxima% --end-toplevel-options %*
+@SBCL_NAME@.exe --core "%maxima_imagesdir%/binary-sbcl/maxima.core" --noinform %lisp_options% --end-runtime-options --eval %start_maxima% --end-toplevel-options %*
 goto end
 :dosbcl_exec
 "%maxima_imagesdir%/binary-sbcl/maxima.exe" %lisp_options% --noinform --end-runtime-options --eval "(cl-user::run)" --end-toplevel-options %*
@@ -167,7 +167,7 @@ if "%MAXIMA_SIGNALS_THREAD%" == "" (
 ) else ( 
   set start_maxima="(progn (load (maxima::$sconcat (namestring (pathname (maxima::maxima-getenv \"MAXIMA_PREFIX\"))) \"/bin/win_signals.lisp\")) (cl-user::run))"
 )
-wx86cl -I "%maxima_image_base%.image" %lisp_options% -e %start_maxima% -- %*
+"@OPENMCL_NAME@" -I "%maxima_image_base%.image" %lisp_options% -e %start_maxima% -- %*
 goto end
 
 :end
