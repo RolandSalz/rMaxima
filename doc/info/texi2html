@@ -8072,7 +8072,9 @@ foreach my $key (keys(%cross_ref_style_map_texi))
 # this is directly pasted over from latex2html
 sub getcwd
 {
-    local($_) = `pwd`;
+		# Patch for windows: Since it does not understand the path given in texi2html.init, it would error out here when trying 'pwd'.
+		# So windows will use chdir, while unix and macOS are happy with pwd. (R.Salz 2017)
+    local($_) = (($^O=~/Win/)? `chdir` : `pwd`);
 
     die "'pwd' failed (out of memory?)\n"
         unless length;
